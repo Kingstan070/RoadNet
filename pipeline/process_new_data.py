@@ -6,9 +6,9 @@ from gps_video_mapping.gpx_video_utils import (
     extract_and_save_frames,
 )
 
-def mapped_framesANDgps_points(video_file_path, gpx_file_path):
+def mapped_framesANDgps_points(video_file_path, gpx_file_path, update_progress):
     # Extract frames and their timestamps from the video file
-    df_frames = extract_frames_with_timestamps(video_file_path)
+    df_frames = extract_frames_with_timestamps(video_file_path, update_progress)
     
     # Extract and filter GPS data from the GPX file
     df_gps = extract_filtered_gpx_data(gpx_file_path)
@@ -22,6 +22,7 @@ def mapped_framesANDgps_points(video_file_path, gpx_file_path):
         df_matched,
         output_folder=os.path.join("data", "uploaded_files"),
         csv_output_path=os.path.join("data", "uploaded_files", "data.csv"),
+        update_progress=update_progress
     )
 
     return df_matched
