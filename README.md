@@ -1,5 +1,7 @@
 # Road Condition Monitoring with Geographic Visualization
 
+## DEVELOPMENT
+
 ## 📌 Project Overview
 This project aims to monitor road conditions using machine learning models, GPS data, and video recordings. The system processes video footage and GPS tracks, extracts frames, maps them to GPS coordinates, and applies machine learning models to classify road surfaces and detect potholes. The results are then stored and visualized through an interactive dashboard.
 
