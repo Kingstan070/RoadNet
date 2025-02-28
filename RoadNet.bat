@@ -27,6 +27,7 @@ conda env list | findstr "torch_env" >nul || (
 start "Streamlit UI" cmd /k "conda activate streamlit_env && streamlit run app.py --server.port=8501 --server.maxUploadSize=50000"
 
 :: Start TensorFlow API on Port 8001
+:: For testing: conda activate tf_env && python tf_predict_test.py
 start "TensorFlow API" cmd /k "conda activate tf_env && uvicorn models.classification_tf.api:app --host 0.0.0.0 --port 8001 --reload"
 
 :: Start PyTorch API on Port 8002
