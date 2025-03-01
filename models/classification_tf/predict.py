@@ -29,7 +29,7 @@ def crop_segmented_area_and_bounding_box(original_image, mask, image_size=(256, 
 
     if len(contours) == 0:
         print("No segmented area detected.")
-        return None  # Return None if no contours are found
+        return None, None  # Return None if no contours are found
     
     # Find the bounding box surrounding the largest contour
     largest_contour = max(contours, key=cv2.contourArea)
@@ -44,7 +44,7 @@ def crop_segmented_area_and_bounding_box(original_image, mask, image_size=(256, 
     # Optionally, resize the cropped image to match the model's input size (e.g., 256x256)
     cropped_image_resized = cv2.resize(cropped_image, image_size)
 
-    return cropped_image_resized
+    return cropped_image_resized, (x, y, w, h)
 
 def segment_image(image_path):
     # Preprocess the image
@@ -87,8 +87,8 @@ def process_images(image_paths):
         # Segment the image
         original_image, mask = segment_image(image_path)
         
-        # Crop the segmented area
-        cropped_image = crop_segmented_area_and_bounding_box(original_image, mask)
+        # Crop the segmented area and get bounding box
+        cropped_image, bounding_box = crop_segmented_area_and_bounding_box(original_image, mask)
         
         if cropped_image is not None:
             # Classify the road type
@@ -101,7 +101,13 @@ def process_images(image_paths):
             results.append({
                 "image_path": image_path,
                 "road_type": road_type,
-                "road_condition": road_condition
+                "road_condition": road_condition,
+                "bounding_box": {
+                    "x": bounding_box[0],
+                    "y": bounding_box[1],
+                    "width": bounding_box[2],
+                    "height": bounding_box[3]
+                }
             })
         else:
             results.append({
