@@ -70,7 +70,7 @@ def extract_frames_with_timestamps(video_file, update_progress):
         frame_data.append([frame_number, relative_timestamp, video_creation_time_ist])
 
         # Update progress bar
-        update_progress((frame_number + 1) / total_frames)
+        update_progress((frame_number + 1) / total_frames, "Extracting Frames")
 
     cap.release()
     df = pd.DataFrame(frame_data, columns=["frame", "relative_timestamp", "video_creation_time"])
@@ -169,7 +169,7 @@ def extract_and_save_frames(video_file, df_matched, output_folder, csv_output_pa
         frame_image_paths.append(frame_location)
 
         # Update progress bar
-        update_progress((i + 1) / total_frames)
+        update_progress((i + 1) / total_frames, "Mapping and Saving Frames")
 
     # Release the video capture object
     cap.release()
