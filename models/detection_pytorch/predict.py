@@ -13,10 +13,6 @@ def detect_objects(detection_requests):
 
     for request in detection_requests:
         input_path = request["image_path"]
-        x = request["x"]
-        y = request["y"]
-        width = request["width"]
-        height = request["height"]
 
         # Load and crop the image
         image = cv2.imread(input_path)
