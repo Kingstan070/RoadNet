@@ -49,7 +49,13 @@ def crop_segmented_area_and_bounding_box(original_image, mask, image_size=(256, 
 def segment_image(image_path):
     # Preprocess the image
     image = preprocess_image(image_path)
+    if image is None:
+        raise ValueError(f"Failed to preprocess image: {image_path}")
+    
     image = np.expand_dims(image, axis=0)  # Add batch dimension
+
+    # Debugging: Print the shape and dtype of the image
+    print(f"Image shape: {image.shape}, dtype: {image.dtype}")
 
     # Predict the segmentation mask
     mask = segmentation_model.predict(image)
@@ -115,10 +121,4 @@ def process_images(image_paths):
                 "error": "No segmented area detected"
             })
     
-    # Convert results to JSON
-    results_json = json.dumps(results, indent=4)
-    
-    # Print the results for testing
-    print(results_json)
-    
-    return results_json
+    return results
