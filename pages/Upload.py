@@ -155,7 +155,7 @@ if st.button("Process Files"):
         road_type_counts = df_combined['road_type'].value_counts()
         road_condition_counts = df_combined['road_condition'].value_counts()
 
-        fig, ax = plt.subplots(2, 1, figsize=(10, 10))
+        fig, ax = plt.subplots(1, 2, figsize=(10, 6))
         
         road_type_counts.plot(kind='bar', ax=ax[0], color='skyblue')
         ax[0].set_title('Road Type Distribution')
