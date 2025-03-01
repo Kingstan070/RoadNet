@@ -16,10 +16,10 @@ conda env list | findstr "tf_env" >nul || (
 )
 
 :: Check & Create PyTorch Environment
-conda env list | findstr "torch_env" >nul || (
-    echo 📦 Creating PyTorch API environment...
-    conda create --name torch_env python=3.10 -y && conda activate torch_env && pip install -r requirements_torch.txt
-)
+::conda env list | findstr "torch_env" >nul || (
+::    echo 📦 Creating PyTorch API environment...
+::    conda create --name torch_env python=3.10 -y && conda activate torch_env && pip install -r requirements_torch.txt
+::)
 
 :: Step 2: Start Services in Separate Windows
 
@@ -31,7 +31,7 @@ start "Streamlit UI" cmd /k "conda activate streamlit_env && streamlit run app.p
 start "TensorFlow API" cmd /k "conda activate tf_env && uvicorn models.classification_tf.api:app --host 0.0.0.0 --port 8001 --reload"
 
 :: Start PyTorch API on Port 8002
-start "PyTorch API" cmd /k "conda activate torch_env && uvicorn models.detection_pytorch.api:app --host 0.0.0.0 --port 8002 --reload"
+::start "PyTorch API" cmd /k "conda activate torch_env && uvicorn models.detection_pytorch.api:app --host 0.0.0.0 --port 8002 --reload"
 
 echo ✅ All services started! Open Streamlit at http://localhost:8501
 pause
