@@ -34,4 +34,15 @@ start "TensorFlow API" cmd /k "conda activate tf_env && uvicorn models.classific
 ::start "PyTorch API" cmd /k "conda activate torch_env && uvicorn models.detection_pytorch.api:app --host 0.0.0.0 --port 8002 --reload"
 
 echo ✅ All services started! Open Streamlit at http://localhost:8501
-pause
+
+:wait_for_q
+set /p input="Type 'q' to close all services: "
+if /i "%input%"=="q" (
+    taskkill /FI "WINDOWTITLE eq Streamlit UI"
+    taskkill /FI "WINDOWTITLE eq TensorFlow API"
+    taskkill /FI "WINDOWTITLE eq PyTorch API"
+    echo All services stopped.
+    exit
+) else (
+    goto wait_for_q
+)
