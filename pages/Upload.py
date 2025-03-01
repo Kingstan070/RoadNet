@@ -1,8 +1,13 @@
 import streamlit as st
 import os
 import pandas as pd
+import folium
+from streamlit_folium import folium_static
 from pipeline.process_new_data import mapped_framesANDgps_points
 from pipeline.run_pipeline import run_pipeline
+from gps_video_mapping.gpx_video_utils import image_to_base64
+import matplotlib.pyplot as plt
+import json
 
 # Title of the Upload page
 st.title("Upload and Process Files")
@@ -75,10 +80,91 @@ if st.button("Process Files"):
     # Update progress bar
     update_progress(100, "Processing complete.")
     
-    # Display the results
-    st.markdown("### Results:")
-    st.dataframe(df_results)
+    # Combine data from df_matched and df_results
+    combined_data = []
+    for _, row in df_results.iterrows():
+        matched_row = df_matched[df_matched["frame_image_path"] == row["image_path"]].iloc[0]
+        latitude = matched_row["latitude"]
+        longitude = matched_row["longitude"]
+        video_creation_time = matched_row["video_creation_time"]
+        road_type = row["road_type"]
+        road_condition = row["road_condition"]
+        pothole_data = json.loads(row["pothole_data"])
+        frame_base64 = image_to_base64(row["image_path"])
+
+        combined_data.append({
+            "latitude": latitude,
+            "longitude": longitude,
+            "video_creation_time": video_creation_time,
+            "road_type": road_type,
+            "road_condition": road_condition,
+            "pothole_data": pothole_data,
+            "frame_base64": frame_base64
+        })
+
+    df_combined = pd.DataFrame(combined_data)
+    
+    # Display the combined results
+    st.markdown("### Combined Results:")
+    st.dataframe(df_combined)
     
     # Display statistics
     st.markdown("### Statistics:")
-    st.write(df_results.describe())
+    st.write(df_combined.describe())
+    
+    # Create columns for map and bar chart
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        # Plot the points in Folium with information
+        st.subheader("Road Condition Map")
+        m = folium.Map(location=[df_combined['latitude'].mean(), df_combined['longitude'].mean()], zoom_start=18)
+
+        # Add markers to the map
+        for _, row in df_combined.iterrows():
+            latitude = row["latitude"]
+            longitude = row["longitude"]
+            road_condition = row["road_condition"]
+
+            # Determine marker color based on road condition
+            if road_condition == "good":
+                color = "green"
+            elif road_condition == "moderate":
+                color = "orange"
+            else:
+                color = "red"
+
+            # Create a popup HTML with the image to display on marker click
+            popup_html = f"""
+                <strong>Lat: {latitude} Long: {longitude}</strong><br>
+                <strong>Road Type: {row['road_type']}</strong><br>
+                <strong>Road Condition: {road_condition}</strong><br>
+                <img src="data:image/jpeg;base64,{row['frame_base64']}" width="200">
+            """
+            popup = folium.Popup(popup_html, max_width=300)
+
+            # Add marker with the popup containing the image
+            folium.Marker([latitude, longitude], popup=popup, icon=folium.Icon(color=color)).add_to(m)
+
+        # Display the map
+        folium_static(m)
+    
+    with col2:
+        # Display bar chart of road types and conditions
+        st.subheader("Road Type and Condition Distribution")
+        road_type_counts = df_combined['road_type'].value_counts()
+        road_condition_counts = df_combined['road_condition'].value_counts()
+
+        fig, ax = plt.subplots(2, 1, figsize=(10, 10))
+        
+        road_type_counts.plot(kind='bar', ax=ax[0], color='skyblue')
+        ax[0].set_title('Road Type Distribution')
+        ax[0].set_xlabel('Road Type')
+        ax[0].set_ylabel('Count')
+        
+        road_condition_counts.plot(kind='bar', ax=ax[1], color='lightgreen')
+        ax[1].set_title('Road Condition Distribution')
+        ax[1].set_xlabel('Road Condition')
+        ax[1].set_ylabel('Count')
+        
+        st.pyplot(fig)

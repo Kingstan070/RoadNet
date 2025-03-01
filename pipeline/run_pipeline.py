@@ -1,5 +1,6 @@
 import requests
 import pandas as pd
+import json
 
 def call_tensorflow_api(image_paths):
     url = "http://localhost:8001/process_images/"
@@ -28,17 +29,13 @@ def convert_to_dataframe(results):
             detection_confidences.append(detection["confidence"])
             detection_bboxes.append(detection["bbox"])
         
+        pothole_data = json.dumps(result["detection_results"])
+        
         data.append({
             "image_path": result["image_path"],
             "road_type": result["road_type"],
             "road_condition": result["road_condition"],
-            "bounding_box_x": result["bounding_box"]["x"],
-            "bounding_box_y": result["bounding_box"]["y"],
-            "bounding_box_width": result["bounding_box"]["width"],
-            "bounding_box_height": result["bounding_box"]["height"],
-            "detection_classes": detection_classes,
-            "detection_confidences": detection_confidences,
-            "detection_bboxes": detection_bboxes
+            "pothole_data": pothole_data
         })
     return pd.DataFrame(data)
 
