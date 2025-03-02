@@ -170,7 +170,6 @@ if st.button("Save to Database"):
     print('Working on saving data to the database...')
     try:
         for _, data in st.session_state.df_combined.iterrows():
-            print(f"Inserting data: {data.to_dict()}")  # Debugging: Print data to be inserted
             insert_data(data.to_dict())
         st.success("Data saved to the database successfully.")
     except Exception as e:
