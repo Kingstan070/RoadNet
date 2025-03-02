@@ -8,6 +8,7 @@ from pipeline.run_pipeline import run_pipeline
 from gps_video_mapping.gpx_video_utils import image_to_base64
 import matplotlib.pyplot as plt
 import json
+from data.data_loader import insert_data
 
 # Title of the Upload page
 st.title("Upload and Process Files")
@@ -64,10 +65,6 @@ if st.button("Process Files"):
         st.error("Please upload either a CSV file or both a video file and a GPX file.")
         st.stop()
     
-    # Display the matched data
-    st.markdown("### Matched Data:")
-    st.dataframe(df_matched)
-    
     # Extract image paths from the matched DataFrame
     image_paths = df_matched["frame_image_path"].tolist()
     
@@ -103,15 +100,11 @@ if st.button("Process Files"):
         })
 
     df_combined = pd.DataFrame(combined_data)
-    
+        
     # Display the combined results
-    st.markdown("### Combined Results:")
+    st.markdown("### Raw Data:")
     st.dataframe(df_combined)
-    
-    # Display statistics
-    st.markdown("### Statistics:")
-    st.write(df_combined.describe())
-    
+
     # Create columns for map and bar chart
     col1, col2 = st.columns(2)
     
@@ -168,3 +161,17 @@ if st.button("Process Files"):
         ax[1].set_ylabel('Count')
         
         st.pyplot(fig)
+
+    if "df_combined" not in st.session_state:
+        st.session_state.df_combined = df_combined
+
+
+if st.button("Save to Database"):
+    print('Working on saving data to the database...')
+    try:
+        for _, data in st.session_state.df_combined.iterrows():
+            print(f"Inserting data: {data.to_dict()}")  # Debugging: Print data to be inserted
+            insert_data(data.to_dict())
+        st.success("Data saved to the database successfully.")
+    except Exception as e:
+        st.error(f"An error occurred while saving to the database: {e}")
